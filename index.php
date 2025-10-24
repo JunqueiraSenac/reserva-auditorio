@@ -2,16 +2,24 @@
 session_start();
 
 // Se não estiver autenticado, mostra a página inicial com agenda pública
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: home.php');
-    exit;
+if (!isset($_SESSION["usuario_id"])) {
+    header("Location: home.php");
+    exit();
 }
 
-// Se estiver autenticado, redireciona para o painel apropriado baseado no tipo de usuário
-if ($_SESSION['tipo_usuario'] === 'admin') {
-    header('Location: view/painel_admin.php');
+// Se estiver autenticado, redireciona conforme o tipo de usuário (admin, instrutor, comum)
+if ($_SESSION["tipo_usuario"] === "admin") {
+    header("Location: view/painel_admin.php");
+
+    exit();
+} elseif ($_SESSION["tipo_usuario"] === "instrutor") {
+    header("Location: view/painel_instrutor.php");
+
+    exit();
 } else {
-    header('Location: view/painel_instrutor.php');
+    // Perfil 'comum' (ou outros): mantém navegação pública
+    header("Location: home.php");
+    exit();
 }
-exit;
+
 ?>

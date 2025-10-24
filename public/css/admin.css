@@ -1,0 +1,475 @@
+/**
+ * Admin Dashboard Styles - SENAC Reserva de Auditório
+ * Escopo: Painel do Administrador (dashboard, cards, tabelas, status, botões)
+ * Autor: Projeto Reserva de Auditório
+ * Versão: 1.0
+ */
+
+/* ===============================
+   1) Variáveis e Base
+   =============================== */
+:root {
+  /* Cores SENAC */
+  --senac-blue: #004A8D;
+  --senac-dark-blue: #003366;
+  --senac-orange: #F26C21;
+  --senac-orange-dark: #D45A1A;
+  --senac-orange-light: #FF8C42;
+  --senac-gold: #C9A961;
+
+  /* Paleta complementar */
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* Bordas e sombras */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.16);
+
+  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  color: var(--gray-800);
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+/* ===============================
+   2) Layout Geral do Dashboard
+   =============================== */
+.dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+  border-bottom: 4px solid var(--senac-orange);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-header .header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.dashboard-header .header-logo img {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+
+.dashboard-header .header-logo h1 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: linear-gradient(135deg, var(--senac-blue) 0%, var(--senac-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+          background-clip: text;
+}
+
+/* Header - Right/User info */
+.dashboard-header .user-info {
+  margin-left: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Conteúdo */
+.dashboard-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 1.25rem auto 2rem;
+  padding: 0 1rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+/* ===============================
+   3) Botões
+   =============================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 0;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(0.5px);
+}
+
+.btn-small {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+}
+
+.btn-primary {
+  background: var(--senac-blue);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  background: var(--senac-dark-blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--senac-orange);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover {
+  background: var(--senac-orange-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+.btn-success:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===============================
+   4) Cartões e Seções
+   =============================== */
+.card {
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+}
+
+.card h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.chart-card {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card canvas {
+  width: 100% !important;
+  height: 280px !important;
+}
+
+/* Grid de estatísticas (cards pequenos) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--senac-blue);
+  box-shadow: inset 0 -8px 16px rgba(0,0,0,0.08);
+}
+
+.stat-card .stat-info h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  font-weight: 700;
+}
+
+.stat-card .stat-number {
+  margin: 0.15rem 0 0 0;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--gray-900);
+}
+
+/* Variações por status */
+.stat-card.stat-pending .stat-icon {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+.stat-card.stat-approved .stat-icon {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+}
+.stat-card.stat-rejected .stat-icon {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+}
+
+/* ===============================
+   5) Tabelas (Reservas)
+   =============================== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.reservas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.reservas-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  color: var(--gray-700);
+  text-align: left;
+  font-weight: 800;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.reservas-table tbody td {
+  padding: 0.875rem 1rem;
+  color: var(--gray-800);
+  border-bottom: 1px solid var(--gray-200);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.reservas-table tbody tr:nth-child(odd) {
+  background: #fcfcfd;
+}
+
+.reservas-table tbody tr:hover {
+  background: #f6f9ff;
+}
+
+/* Ações na tabela */
+.reservas-table td form {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+/* ===============================
+   6) Badges/Status
+   =============================== */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.15px;
+  border: 1px solid transparent;
+}
+
+.status-pendente {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.status-aprovada {
+  color: #065f46;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.status-rejeitada {
+  color: #7f1d1d;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-cancelada {
+  color: #1f2937;
+  background: rgba(120, 144, 156, 0.15);
+  border-color: rgba(120, 144, 156, 0.35);
+}
+
+/* ===============================
+   7) Utilitários
+   =============================== */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.hidden { display: none !important; }
+
+.mt-0 { margin-top: 0; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+
+.p-0 { padding: 0; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+
+.rounded { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+
+/* ===============================
+   8) Responsividade
+   =============================== */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    border-bottom-width: 3px;
+  }
+
+  .dashboard-header .header-logo h1 {
+    font-size: 1rem;
+  }
+
+  .dashboard-header .header-logo img {
+    height: 40px;
+  }
+
+  .dashboard-content {
+    padding: 0 0.75rem;
+  }
+
+  .chart-card {
+    min-height: 320px;
+  }
+
+  .chart-card canvas {
+    height: 240px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-header .header-logo {
+    padding: 0.75rem 1rem;
+  }
+
+  .dashboard-header .user-info {
+    padding: 0.75rem 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .reservas-table thead th,
+  .reservas-table tbody td {
+    padding: 0.75rem 0.75rem;
+  }
+}

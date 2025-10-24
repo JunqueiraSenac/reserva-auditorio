@@ -1,0 +1,25 @@
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="modal-body">
+                <!-- Conteúdo preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/pt-br.global.min.js"></script>
+
+    <script>
+        // Passar eventos PHP para JavaScript
+        window.eventosCalendario = <?php echo json_encode($eventos); ?>;
+
+        console.log('📅 Calendário SENAC carregado');
+        console.log('📊 Total de eventos:', <?php echo $totalEventos; ?>);
+        console.log('✅ Conexão:', <?php echo $conexaoOk ? 'OK' : 'ERRO'; ?>);
+    </script>
+
+    <script src="public/js/calendar.js"></script>
+</body>
+</html>
