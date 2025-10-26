@@ -27,7 +27,7 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
     <title>SENAC - Painel do Administrador</title>
     <link rel="icon" type="image/png" href="../public/images/logo-senac.png">
     <link rel="stylesheet" href="../public/css/admin.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="dashboard">
@@ -37,73 +37,148 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
                 <h1>SENAC - Painel do Administrador</h1>
             </div>
             <div class="user-info">
-                <span>Bem-vindo, <?php echo htmlspecialchars(
-                    $_SESSION["usuario_nome"],
-                ); ?>!</span>
-                <button id="theme-toggle" class="btn" style="margin-right: 10px;" title="Alternar tema escuro/claro (Alt+D)" onclick="(function(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.setItem('theme', d?'dark':'light');var icon=document.querySelector('#theme-toggle i');icon.className=d?'fas fa-sun':'fas fa-moon';})();">
+                <span>Bem-vindo, <?php echo htmlspecialchars($_SESSION["usuario_nome"]); ?>!</span>
+                <button id="theme-toggle" class="btn" style="margin-right: 10px;" title="Alternar tema escuro/claro (Alt+D)">
                     <i class="fas fa-moon"></i>
                 </button>
                 <form action="../controller/LoginController.php" method="POST" style="display: inline;">
                     <input type="hidden" name="action" value="logout">
-                    <button type="submit" class="btn btn-secondary">Sair</button>
+                    <button type="submit" class="btn btn-exit">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
                 </form>
             </div>
         </header>
 
         <main class="dashboard-content">
-            <!-- Added statistics cards -->
             <section class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">Total</div>
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-info">
                         <h3>Total de Reservas</h3>
-                        <p class="stat-number"><?php echo $estatisticas[
-                            "total"
-                        ]; ?></p>
+                        <p class="stat-number"><?php echo $estatisticas["total"]; ?></p>
                     </div>
                 </div>
 
                 <div class="stat-card stat-pending">
-                    <div class="stat-icon">Pendentes</div>
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
                     <div class="stat-info">
                         <h3>Pendentes</h3>
-                        <p class="stat-number"><?php echo $estatisticas[
-                            "pendentes"
-                        ]; ?></p>
+                        <p class="stat-number"><?php echo $estatisticas["pendentes"]; ?></p>
                     </div>
                 </div>
 
                 <div class="stat-card stat-approved">
-                    <div class="stat-icon">Aprovadas</div>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-info">
                         <h3>Aprovadas</h3>
-                        <p class="stat-number"><?php echo $estatisticas[
-                            "aprovadas"
-                        ]; ?></p>
+                        <p class="stat-number"><?php echo $estatisticas["aprovadas"]; ?></p>
                     </div>
                 </div>
 
                 <div class="stat-card stat-rejected">
-                    <div class="stat-icon">Rejeitadas</div>
+                    <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
                     <div class="stat-info">
                         <h3>Rejeitadas</h3>
-                        <p class="stat-number"><?php echo $estatisticas[
-                            "rejeitadas"
-                        ]; ?></p>
+                        <p class="stat-number"><?php echo $estatisticas["rejeitadas"]; ?></p>
                     </div>
                 </div>
             </section>
 
-            <!-- Added charts section -->
             <section class="charts-section">
                 <div class="card chart-card">
                     <h2>Reservas por Mês</h2>
-                    <canvas id="reservasChart"></canvas>
+                    <div class="static-chart reservas-chart">
+                        <?php if (empty($reservasPorMes)): ?>
+                            <div class="no-data-message">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>Não há dados disponíveis</p>
+                            </div>
+                        <?php else: ?>
+                            <?php 
+                            $limitedData = array_slice($reservasPorMes, -12);
+                            $maxValue = 0;
+                            foreach ($limitedData as $item) {
+                                $maxValue = max($maxValue, $item['total']);
+                            }
+                            ?>
+                            <div class="chart-bars">
+                                <?php foreach ($limitedData as $item): ?>
+                                    <?php 
+                                    $mes = explode('-', $item['mes'])[1];
+                                    $ano = explode('-', $item['mes'])[0];
+                                    $nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+                                    $altura = $maxValue > 0 ? ($item['total'] / $maxValue) * 100 : 0;
+                                    $alturaAprovadas = $maxValue > 0 ? ($item['aprovadas'] / $maxValue) * 100 : 0;
+                                    ?>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar-wrapper">
+                                            <div class="chart-bar total" style="height: <?= $altura ?>%">
+                                                <span class="chart-value"><?= $item['total'] ?></span>
+                                            </div>
+                                            <div class="chart-bar approved" style="height: <?= $alturaAprovadas ?>%"></div>
+                                        </div>
+                                        <div class="chart-label"><?= $nomesMes[intval($mes)-1] ?>/<?= substr($ano, 2) ?></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color total"></span>
+                                    <span class="legend-text">Total de Reservas</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color approved"></span>
+                                    <span class="legend-text">Aprovadas</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <div class="card chart-card">
                     <h2>Status das Reservas</h2>
-                    <canvas id="statusChart"></canvas>
+                    <div class="static-chart status-chart">
+                        <?php if ($estatisticas["pendentes"] == 0 && $estatisticas["aprovadas"] == 0 && $estatisticas["rejeitadas"] == 0 && $estatisticas["canceladas"] == 0): ?>
+                            <div class="no-data-message">
+                                <i class="fas fa-chart-pie"></i>
+                                <p>Não há dados disponíveis</p>
+                            </div>
+                        <?php else: ?>
+                            <?php
+                            $total = $estatisticas["pendentes"] + $estatisticas["aprovadas"] + $estatisticas["rejeitadas"] + $estatisticas["canceladas"];
+                            $percentPendentes = $total > 0 ? ($estatisticas["pendentes"] / $total) * 100 : 0;
+                            $percentAprovadas = $total > 0 ? ($estatisticas["aprovadas"] / $total) * 100 : 0;
+                            $percentRejeitadas = $total > 0 ? ($estatisticas["rejeitadas"] / $total) * 100 : 0;
+                            $percentCanceladas = $total > 0 ? ($estatisticas["canceladas"] / $total) * 100 : 0;
+                            ?>
+                            <div class="donut-chart">
+                                <div class="donut-segment" style="--percent: <?= $percentPendentes ?>; --color: #FFA726; --offset: 0;"></div>
+                                <div class="donut-segment" style="--percent: <?= $percentAprovadas ?>; --color: #66BB6A; --offset: <?= $percentPendentes ?>;"></div>
+                                <div class="donut-segment" style="--percent: <?= $percentRejeitadas ?>; --color: #EF5350; --offset: <?= $percentPendentes + $percentAprovadas ?>;"></div>
+                                <div class="donut-segment" style="--percent: <?= $percentCanceladas ?>; --color: #78909C; --offset: <?= $percentPendentes + $percentAprovadas + $percentRejeitadas ?>;"></div>
+                                <div class="donut-hole"></div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #FFA726;"></span>
+                                    <span class="legend-text">Pendentes (<?= $estatisticas["pendentes"] ?>)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #66BB6A;"></span>
+                                    <span class="legend-text">Aprovadas (<?= $estatisticas["aprovadas"] ?>)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #EF5350;"></span>
+                                    <span class="legend-text">Rejeitadas (<?= $estatisticas["rejeitadas"] ?>)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #78909C;"></span>
+                                    <span class="legend-text">Canceladas (<?= $estatisticas["canceladas"] ?>)</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </section>
 
@@ -124,64 +199,26 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
                         </thead>
                         <tbody>
                             <?php if (empty($reservas)): ?>
-                                <tr>
-                                    <td colspan="7" class="text-center">Nenhuma reserva encontrada</td>
-                                </tr>
+                                <tr><td colspan="7" class="text-center">Nenhuma reserva encontrada</td></tr>
                             <?php else: ?>
                                 <?php foreach ($reservas as $reserva): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars(
-                                            $reserva["usuario_nome"],
-                                        ); ?></td>
-                                        <!-- Added telefone column -->
-                                        <td><?php echo htmlspecialchars(
-                                            $reserva["usuario_telefone"] ??
-                                                "N/A",
-                                        ); ?></td>
-                                        <td><?php echo date(
-                                            "d/m/Y",
-                                            strtotime($reserva["data"]),
-                                        ); ?></td>
-                                        <td><?php echo substr(
-                                            $reserva["hora_inicio"],
-                                            0,
-                                            5,
-                                        ) .
-                                            " - " .
-                                            substr(
-                                                $reserva["hora_fim"],
-                                                0,
-                                                5,
-                                            ); ?></td>
-                                        <td><?php echo htmlspecialchars(
-                                            $reserva["descricao"],
-                                        ); ?></td>
+                                        <td><?= htmlspecialchars($reserva["usuario_nome"]) ?></td>
+                                        <td><?= htmlspecialchars($reserva["usuario_telefone"] ?? "N/A") ?></td>
+                                        <td><?= date("d/m/Y", strtotime($reserva["data"])) ?></td>
+                                        <td><?= substr($reserva["hora_inicio"], 0, 5) . " - " . substr($reserva["hora_fim"], 0, 5) ?></td>
+                                        <td><?= htmlspecialchars($reserva["descricao"]) ?></td>
+                                        <td><span class="status status-<?= $reserva["status"] ?>"><?= ucfirst($reserva["status"]) ?></span></td>
                                         <td>
-                                            <span class="status status-<?php echo $reserva[
-                                                "status"
-                                            ]; ?>">
-                                                <?php echo ucfirst(
-                                                    $reserva["status"],
-                                                ); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <?php if (
-                                                $reserva["status"] ===
-                                                "pendente"
-                                            ): ?>
-                                                <form action="../controller/ReservaController.php" method="POST" style="display: inline;">
+                                            <?php if ($reserva["status"] === "pendente"): ?>
+                                                <form action="../controller/ReservaController.php" method="POST" style="display:inline;">
                                                     <input type="hidden" name="action" value="aprovar">
-                                                    <input type="hidden" name="id" value="<?php echo $reserva[
-                                                        "id"
-                                                    ]; ?>">
+                                                    <input type="hidden" name="id" value="<?= $reserva["id"] ?>">
                                                     <button type="submit" class="btn btn-small btn-success">Aprovar</button>
                                                 </form>
-                                                <form action="../controller/ReservaController.php" method="POST" style="display: inline;">
+                                                <form action="../controller/ReservaController.php" method="POST" style="display:inline;">
                                                     <input type="hidden" name="action" value="rejeitar">
-                                                    <input type="hidden" name="id" value="<?php echo $reserva[
-                                                        "id"
-                                                    ]; ?>">
+                                                    <input type="hidden" name="id" value="<?= $reserva["id"] ?>">
                                                     <button type="submit" class="btn btn-small btn-danger">Rejeitar</button>
                                                 </form>
                                             <?php endif; ?>
@@ -199,122 +236,26 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
     <script src="../public/js/gsap.min.js"></script>
     <script src="../public/js/animations.js"></script>
 
-    <script>
-        console.log('[v0] Initializing charts...');
-
-        // Reservas por Mês Chart
-        const reservasPorMes = <?php echo json_encode($reservasPorMes); ?>;
-        console.log('[v0] Reservas por mes data:', reservasPorMes);
-
-        const meses = reservasPorMes.map(item => {
-            const [ano, mes] = item.mes.split('-');
-            const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            return mesesNomes[parseInt(mes) - 1] + '/' + ano.slice(2);
-        });
-        const totais = reservasPorMes.map(item => item.total);
-        const aprovadas = reservasPorMes.map(item => item.aprovadas);
-
-        const chartElement = document.getElementById('reservasChart');
-        console.log('[v0] Chart element found:', chartElement);
-
-        if (chartElement) {
-            new Chart(chartElement, {
-                type: 'line',
-                data: {
-                    labels: meses,
-                    datasets: [{
-                        label: 'Total de Reservas',
-                        data: totais,
-                        borderColor: '#004A8D',
-                        backgroundColor: 'rgba(0, 74, 141, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Aprovadas',
-                        data: aprovadas,
-                        borderColor: '#F26C21',
-                        backgroundColor: 'rgba(242, 108, 33, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#e0e0e0' }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#e0e0e0' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#e0e0e0' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        }
-                    }
-                }
-            });
-            console.log('[v0] Line chart created successfully');
-        }
-
-        // Status Chart
-        const stats = <?php echo json_encode($estatisticas); ?>;
-        console.log('[v0] Statistics data:', stats);
-
-        const statusChartElement = document.getElementById('statusChart');
-        console.log('[v0] Status chart element found:', statusChartElement);
-
-        if (statusChartElement) {
-            new Chart(statusChartElement, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Pendentes', 'Aprovadas', 'Rejeitadas', 'Canceladas'],
-                    datasets: [{
-                        data: [stats.pendentes, stats.aprovadas, stats.rejeitadas, stats.canceladas],
-                        backgroundColor: ['#FFA726', '#66BB6A', '#EF5350', '#78909C'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#e0e0e0', padding: 15 }
-                        }
-                    }
-                }
-            });
-            console.log('[v0] Doughnut chart created successfully');
-        }
-
-        console.log('[v0] Charts initialization complete');
-    </script>
-
     <!-- Dark Mode Script -->
     <script>
-        // Inicializar tema
-        (function() {
-            const theme = localStorage.getItem('theme');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                const icon = document.querySelector('#theme-toggle i');
-                if (icon) icon.className = 'fas fa-sun';
-            }
-        })();
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
 
-        // Atalho Alt+D para alternar tema
-        document.addEventListener('keydown', function(e) {
-            if (e.altKey && e.key === 'd') {
-                e.preventDefault();
-                document.getElementById('theme-toggle')?.click();
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            const toggle = document.getElementById('theme-toggle');
+            if (toggle) toggle.addEventListener('click', toggleTheme);
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+            });
         });
     </script>
 </body>

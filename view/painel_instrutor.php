@@ -45,6 +45,7 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -58,16 +59,88 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
             }
         }
     </script>
+    <style>
+        /* Dark Mode Styles */
+        html.dark {
+            color-scheme: dark;
+        }
+        
+        html.dark body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f3f4f6;
+        }
+        
+        html.dark .header {
+            background-color: #1e293b;
+            border-bottom: 4px solid var(--senac-orange);
+        }
+        
+        html.dark .card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        
+        html.dark .btn-primary {
+            background-color: #4a9eff;
+        }
+        
+        html.dark .btn-secondary {
+            background-color: #334155;
+            color: #f3f4f6;
+        }
+        
+        html.dark input, 
+        html.dark select, 
+        html.dark textarea {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #f3f4f6;
+        }
+        
+        html.dark table {
+            background-color: #1e293b;
+            color: #f3f4f6;
+        }
+        
+        html.dark th {
+            background-color: #334155;
+        }
+        
+        html.dark tr:nth-child(even) {
+            background-color: #1e293b;
+        }
+        
+        html.dark tr:nth-child(odd) {
+            background-color: #0f172a;
+        }
+        
+        html.dark .fc-theme-standard td, 
+        html.dark .fc-theme-standard th {
+            border-color: #334155;
+        }
+        
+        html.dark .fc-theme-standard .fc-scrollgrid {
+            border-color: #334155;
+        }
+        
+        html.dark .fc-col-header-cell {
+            background-color: #334155;
+        }
+        
+        html.dark .fc-daygrid-day {
+            background-color: #1e293b;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-senac-light-blue to-white">
+<body class="min-h-screen bg-gradient-to-br from-senac-light-blue to-white dark:from-gray-900 dark:to-gray-800 dark:text-white transition-colors">
     <!-- Header -->
-    <header class="header">
+    <header class="header dark:bg-gray-800 dark:border-senac-orange">
         <div class="header-container">
             <div class="logo-container">
                 <img src="../public/images/logo-senac.png" alt="SENAC Logo" class="logo-img">
                 <div class="hidden md:block">
                     <h1 class="header-title">Painel do Instrutor</h1>
-                    <p class="text-sm text-gray-600">Sistema de Reserva do Auditório</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Sistema de Reserva do Auditório</p>
                 </div>
             </div>
 
@@ -88,7 +161,7 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
                         Início
 
                     </a>
-                    <button id="theme-toggle" class="btn btn-outline" title="Alternar tema escuro/claro (Alt+D)" onclick="(function(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.setItem('theme', d?'dark':'light');var icon=document.querySelector('#theme-toggle i');icon.className=d?'fas fa-sun':'fas fa-moon';})();">
+                    <button id="theme-toggle" class="btn btn-outline" title="Alternar tema escuro/claro (Alt+D)">
                         <i class="fas fa-moon"></i>
                     </button>
 
@@ -808,36 +881,40 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
 
     <!-- Dark Mode Initialization Script -->
     <script>
-        // Inicializar tema ao carregar a p�gina
-        (function() {
-            const theme = localStorage.getItem('theme');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                const icon = document.querySelector('#theme-toggle i');
-                if (icon) icon.className = 'fas fa-sun';
+        // Função para alternar o tema
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
             }
-        })();
-
-        // Atualizar �cone ao clicar no bot�o
+        }
+        
+        // Inicializar tema ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
+            // Definir tema inicial baseado no localStorage
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Adicionar evento de clique ao botão
             const themeToggle = document.getElementById('theme-toggle');
             if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    setTimeout(function() {
-                        const isDark = document.documentElement.classList.contains('dark');
-                        const icon = themeToggle.querySelector('i');
-                        if (icon) {
-                            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-                        }
-                    }, 10);
-                });
+                themeToggle.addEventListener('click', toggleTheme);
             }
-
+            
             // Atalho Alt+D
             document.addEventListener('keydown', function(e) {
                 if (e.altKey && e.key === 'd') {
                     e.preventDefault();
-                    themeToggle?.click();
+                    toggleTheme();
                 }
             });
         });
