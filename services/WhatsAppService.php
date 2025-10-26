@@ -65,33 +65,45 @@ class WhatsAppService {
         // Remove non-numeric characters from phone number
         $telefone = preg_replace('/[^0-9]/', '', $telefone);
         
-        // For development/testing, just log the message
+        // Log the message for debugging
         error_log("WhatsApp para {$telefone}: {$mensagem}");
         
-        // Uncomment and configure for production use with your WhatsApp API
-        /*
+        // Configuração para API do WhatsApp
         $data = [
             'phone' => $telefone,
             'message' => $mensagem
         ];
         
-        $ch = curl_init($this->apiUrl);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiToken
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        return $httpCode >= 200 && $httpCode < 300;
-        */
-        
-        return true;
+        // Verifica se estamos em ambiente de produção com token configurado
+        if (!empty($this->apiToken)) {
+            $ch = curl_init($this->apiUrl);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->apiToken
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            return $httpCode >= 200 && $httpCode < 300;
+        } else {
+            // Se não temos token, usamos a API pública do WhatsApp
+            // Isso abrirá o WhatsApp Web com a mensagem pré-preenchida
+            $mensagemCodificada = urlencode($mensagem);
+            $url = "https://api.whatsapp.com/send?phone={$telefone}&text={$mensagemCodificada}";
+            
+            // Armazenamos a URL para redirecionamento na sessão
+            if (!isset($_SESSION)) {
+                session_start();
+            }
+            $_SESSION['whatsapp_redirect'] = $url;
+            
+            return true;
+        }
     }
 }
 ?>

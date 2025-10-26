@@ -28,6 +28,7 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
     <link rel="icon" type="image/png" href="../public/images/logo-senac.png">
     <link rel="stylesheet" href="../public/css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="dashboard">
@@ -88,95 +89,190 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
             <section class="charts-section">
                 <div class="card chart-card">
                     <h2>Reservas por Mês</h2>
-                    <div class="static-chart reservas-chart">
+                    <div class="chart-container">
                         <?php if (empty($reservasPorMes)): ?>
                             <div class="no-data-message">
                                 <i class="fas fa-chart-bar"></i>
                                 <p>Não há dados disponíveis</p>
                             </div>
                         <?php else: ?>
-                            <?php 
-                            $limitedData = array_slice($reservasPorMes, -12);
-                            $maxValue = 0;
-                            foreach ($limitedData as $item) {
-                                $maxValue = max($maxValue, $item['total']);
-                            }
-                            ?>
-                            <div class="chart-bars">
-                                <?php foreach ($limitedData as $item): ?>
-                                    <?php 
-                                    $mes = explode('-', $item['mes'])[1];
-                                    $ano = explode('-', $item['mes'])[0];
-                                    $nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-                                    $altura = $maxValue > 0 ? ($item['total'] / $maxValue) * 100 : 0;
-                                    $alturaAprovadas = $maxValue > 0 ? ($item['aprovadas'] / $maxValue) * 100 : 0;
-                                    ?>
-                                    <div class="chart-bar-group">
-                                        <div class="chart-bar-wrapper">
-                                            <div class="chart-bar total" style="height: <?= $altura ?>%">
-                                                <span class="chart-value"><?= $item['total'] ?></span>
-                                            </div>
-                                            <div class="chart-bar approved" style="height: <?= $alturaAprovadas ?>%"></div>
-                                        </div>
-                                        <div class="chart-label"><?= $nomesMes[intval($mes)-1] ?>/<?= substr($ano, 2) ?></div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <span class="legend-color total"></span>
-                                    <span class="legend-text">Total de Reservas</span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color approved"></span>
-                                    <span class="legend-text">Aprovadas</span>
-                                </div>
-                            </div>
+                            <canvas id="reservasPorMesChart"></canvas>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const ctx = document.getElementById('reservasPorMesChart').getContext('2d');
+                                    
+                                    // Preparar dados para o gráfico
+                                    const chartData = {
+                                        labels: [
+                                            <?php 
+                                            $limitedData = array_slice($reservasPorMes, -12);
+                                            foreach ($limitedData as $item) {
+                                                $mes = explode('-', $item['mes'])[1];
+                                                $ano = explode('-', $item['mes'])[0];
+                                                $nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+                                                echo "'" . $nomesMes[intval($mes)-1] . "/" . substr($ano, 2) . "', ";
+                                            }
+                                            ?>
+                                        ],
+                                        datasets: [
+                                            {
+                                                label: 'Total de Reservas',
+                                                data: [<?php foreach ($limitedData as $item) { echo $item['total'] . ', '; } ?>],
+                                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                                borderColor: 'rgba(54, 162, 235, 1)',
+                                                borderWidth: 1
+                                            },
+                                            {
+                                                label: 'Aprovadas',
+                                                data: [<?php foreach ($limitedData as $item) { echo $item['aprovadas'] . ', '; } ?>],
+                                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                                borderColor: 'rgba(75, 192, 192, 1)',
+                                                borderWidth: 1
+                                            }
+                                        ]
+                                    };
+                                    
+                                    // Criar o gráfico
+                                    const reservasChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: chartData,
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            onResize: function(chart, size) {
+                                                // Ajusta o tamanho do gráfico quando a janela é redimensionada
+                                                if (size.width < 600) {
+                                                    chart.options.scales.x.ticks.maxRotation = 90;
+                                                    chart.options.scales.x.ticks.minRotation = 45;
+                                                } else {
+                                                    chart.options.scales.x.ticks.maxRotation = 0;
+                                                    chart.options.scales.x.ticks.minRotation = 0;
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    labels: {
+                                                        font: {
+                                                            size: 12
+                                                        }
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    mode: 'index',
+                                                    intersect: false
+                                                }
+                                            },
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    ticks: {
+                                                        precision: 0
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    
+                                    // Atualizar o gráfico quando o tema mudar
+                                    document.getElementById('theme-toggle').addEventListener('click', function() {
+                                        setTimeout(function() {
+                                            const isDark = document.documentElement.classList.contains('dark');
+                                            reservasChart.options.scales.y.grid = {
+                                                color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                            };
+                                            reservasChart.options.scales.x.grid = {
+                                                color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                                            };
+                                            reservasChart.update();
+                                        }, 100);
+                                    });
+                                });
+                            </script>
                         <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="card chart-card">
                     <h2>Status das Reservas</h2>
-                    <div class="static-chart status-chart">
+                    <div class="chart-container">
                         <?php if ($estatisticas["pendentes"] == 0 && $estatisticas["aprovadas"] == 0 && $estatisticas["rejeitadas"] == 0 && $estatisticas["canceladas"] == 0): ?>
                             <div class="no-data-message">
                                 <i class="fas fa-chart-pie"></i>
                                 <p>Não há dados disponíveis</p>
                             </div>
                         <?php else: ?>
-                            <?php
-                            $total = $estatisticas["pendentes"] + $estatisticas["aprovadas"] + $estatisticas["rejeitadas"] + $estatisticas["canceladas"];
-                            $percentPendentes = $total > 0 ? ($estatisticas["pendentes"] / $total) * 100 : 0;
-                            $percentAprovadas = $total > 0 ? ($estatisticas["aprovadas"] / $total) * 100 : 0;
-                            $percentRejeitadas = $total > 0 ? ($estatisticas["rejeitadas"] / $total) * 100 : 0;
-                            $percentCanceladas = $total > 0 ? ($estatisticas["canceladas"] / $total) * 100 : 0;
-                            ?>
-                            <div class="donut-chart">
-                                <div class="donut-segment" style="--percent: <?= $percentPendentes ?>; --color: #FFA726; --offset: 0;"></div>
-                                <div class="donut-segment" style="--percent: <?= $percentAprovadas ?>; --color: #66BB6A; --offset: <?= $percentPendentes ?>;"></div>
-                                <div class="donut-segment" style="--percent: <?= $percentRejeitadas ?>; --color: #EF5350; --offset: <?= $percentPendentes + $percentAprovadas ?>;"></div>
-                                <div class="donut-segment" style="--percent: <?= $percentCanceladas ?>; --color: #78909C; --offset: <?= $percentPendentes + $percentAprovadas + $percentRejeitadas ?>;"></div>
-                                <div class="donut-hole"></div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <span class="legend-color" style="background-color: #FFA726;"></span>
-                                    <span class="legend-text">Pendentes (<?= $estatisticas["pendentes"] ?>)</span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color" style="background-color: #66BB6A;"></span>
-                                    <span class="legend-text">Aprovadas (<?= $estatisticas["aprovadas"] ?>)</span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color" style="background-color: #EF5350;"></span>
-                                    <span class="legend-text">Rejeitadas (<?= $estatisticas["rejeitadas"] ?>)</span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color" style="background-color: #78909C;"></span>
-                                    <span class="legend-text">Canceladas (<?= $estatisticas["canceladas"] ?>)</span>
-                                </div>
-                            </div>
+                            <canvas id="statusReservasChart"></canvas>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const ctx = document.getElementById('statusReservasChart').getContext('2d');
+                                    
+                                    // Dados para o gráfico
+                                    const data = {
+                                        labels: ['Pendentes', 'Aprovadas', 'Rejeitadas', 'Canceladas'],
+                                        datasets: [{
+                                            data: [
+                                                <?= $estatisticas["pendentes"] ?>, 
+                                                <?= $estatisticas["aprovadas"] ?>, 
+                                                <?= $estatisticas["rejeitadas"] ?>, 
+                                                <?= $estatisticas["canceladas"] ?>
+                                            ],
+                                            backgroundColor: [
+                                                '#FFA726', // Pendentes - Laranja
+                                                '#66BB6A', // Aprovadas - Verde
+                                                '#EF5350', // Rejeitadas - Vermelho
+                                                '#78909C'  // Canceladas - Cinza
+                                            ],
+                                            borderWidth: 1
+                                        }]
+                                    };
+                                    
+                                    // Criar o gráfico
+                                    const statusChart = new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: data,
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    labels: {
+                                                        font: {
+                                                            size: 12
+                                                        }
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            const label = context.label || '';
+                                                            const value = context.raw || 0;
+                                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                            const percentage = Math.round((value / total) * 100);
+                                                            return `${label}: ${value} (${percentage}%)`;
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            cutout: '60%',
+                                            animation: {
+                                                animateRotate: true,
+                                                animateScale: true
+                                            }
+                                        }
+                                    });
+                                    
+                                    // Atualizar o gráfico quando o tema mudar
+                                    document.getElementById('theme-toggle').addEventListener('click', function() {
+                                        setTimeout(function() {
+                                            const isDark = document.documentElement.classList.contains('dark');
+                                            statusChart.options.plugins.legend.labels.color = isDark ? '#fff' : '#666';
+                                            statusChart.update();
+                                        }, 100);
+                                    });
+                                });
+                            </script>
                         <?php endif; ?>
                     </div>
                 </div>

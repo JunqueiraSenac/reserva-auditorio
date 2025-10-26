@@ -157,13 +157,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"])) {
         case "aprovar":
             $id = $_POST["id"] ?? 0;
             $controller->aprovar($id);
-            header("Location: ../view/painel_admin.php");
+            if (isset($_SESSION['whatsapp_redirect'])) {
+                $redirect = $_SESSION['whatsapp_redirect'];
+                unset($_SESSION['whatsapp_redirect']);
+                echo "<script>window.open('{$redirect}', '_blank'); window.location.href='../view/painel_admin.php';</script>";
+            } else {
+                header("Location: ../view/painel_admin.php");
+            }
             exit();
 
         case "rejeitar":
             $id = $_POST["id"] ?? 0;
             $controller->rejeitar($id);
-            header("Location: ../view/painel_admin.php");
+            if (isset($_SESSION['whatsapp_redirect'])) {
+                $redirect = $_SESSION['whatsapp_redirect'];
+                unset($_SESSION['whatsapp_redirect']);
+                echo "<script>window.open('{$redirect}', '_blank'); window.location.href='../view/painel_admin.php';</script>";
+            } else {
+                header("Location: ../view/painel_admin.php");
+            }
             exit();
 
         case "cancelar":

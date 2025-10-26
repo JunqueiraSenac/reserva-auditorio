@@ -252,6 +252,25 @@ html, body {
 
 .chart-bar {
     position: absolute;
+}
+
+/* Estilos para os gráficos */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.chart-card {
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.chart-bar {
     bottom: 0;
     width: 100%;
     transition: height 0.5s ease;
