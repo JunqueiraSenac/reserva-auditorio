@@ -88,7 +88,7 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
                         In√≠cio
 
                     </a>
-                    <button id="theme-toggle" class="btn btn-outline" title="Alternar tema" onclick="(function(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.setItem('theme', d?'dark':'light');})();">
+                    <button id="theme-toggle" class="btn btn-outline" title="Alternar tema escuro/claro (Alt+D)" onclick="(function(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.setItem('theme', d?'dark':'light');var icon=document.querySelector('#theme-toggle i');icon.className=d?'fas fa-sun':'fas fa-moon';})();">
                         <i class="fas fa-moon"></i>
                     </button>
 
@@ -803,6 +803,43 @@ $erro = isset($_GET["erro"]) ? $_GET["erro"] : "";
             });
             <?php endif; ?>
             <?php endif; ?>
+        });
+    </script>
+
+    <!-- Dark Mode Initialization Script -->
+    <script>
+        // Inicializar tema ao carregar a p·gina
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                const icon = document.querySelector('#theme-toggle i');
+                if (icon) icon.className = 'fas fa-sun';
+            }
+        })();
+
+        // Atualizar Ìcone ao clicar no bot„o
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    setTimeout(function() {
+                        const isDark = document.documentElement.classList.contains('dark');
+                        const icon = themeToggle.querySelector('i');
+                        if (icon) {
+                            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                        }
+                    }, 10);
+                });
+            }
+
+            // Atalho Alt+D
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey && e.key === 'd') {
+                    e.preventDefault();
+                    themeToggle?.click();
+                }
+            });
         });
     </script>
 </body>

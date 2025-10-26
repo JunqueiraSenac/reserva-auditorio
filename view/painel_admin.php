@@ -40,6 +40,9 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
                 <span>Bem-vindo, <?php echo htmlspecialchars(
                     $_SESSION["usuario_nome"],
                 ); ?>!</span>
+                <button id="theme-toggle" class="btn" style="margin-right: 10px;" title="Alternar tema escuro/claro (Alt+D)" onclick="(function(){var h=document.documentElement;var d=h.classList.toggle('dark');localStorage.setItem('theme', d?'dark':'light');var icon=document.querySelector('#theme-toggle i');icon.className=d?'fas fa-sun':'fas fa-moon';})();">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <form action="../controller/LoginController.php" method="POST" style="display: inline;">
                     <input type="hidden" name="action" value="logout">
                     <button type="submit" class="btn btn-secondary">Sair</button>
@@ -292,6 +295,27 @@ $reservasPorMes = $reservaController->obterReservasPorMes();
         }
 
         console.log('[v0] Charts initialization complete');
+    </script>
+
+    <!-- Dark Mode Script -->
+    <script>
+        // Inicializar tema
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                const icon = document.querySelector('#theme-toggle i');
+                if (icon) icon.className = 'fas fa-sun';
+            }
+        })();
+
+        // Atalho Alt+D para alternar tema
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key === 'd') {
+                e.preventDefault();
+                document.getElementById('theme-toggle')?.click();
+            }
+        });
     </script>
 </body>
 </html>
